@@ -3,10 +3,18 @@ class TetrisBlock {
         this.board = board
         this.x = 0
         this.y = 0
-        this.dw = 74
-        this.dh = 74
-        this.colors = ['red', 'blue', 'lightblue', 'yellow', 'purple', 'green', 'orange']
-        this.color = 'red'
+    }
+
+    get dw() {
+        return 74
+    }
+
+    get dh() {
+        return 74
+    }
+
+    get colors() {
+        return ['red', 'blue', 'lightblue', 'yellow', 'purple', 'green', 'orange']
     }
 
     static newRandomBlock(board) {
@@ -14,6 +22,7 @@ class TetrisBlock {
         let blockType = parseInt(Math.random() * 7, 10)
         let blocks = [TetrisLBlock, TetrisLongBar, TetrisReverseLBlock, TetrisReverseZBlock, TetrisSquare, TetrisTBlock, TetrisZBlock]
         return new blocks[blockType](board)
+        // return new TetrisLongBar(board)
     }
 
     moveLeft() {
@@ -33,12 +42,16 @@ class TetrisBlock {
     }
 
     checkPos() {
-        if (this.board.checkRange(this) != true
-            || this.board.checkCollide(this)) {
-            return false
-        } else {
-            return true
+        let result = {}
+        let isOutOfRange = this.board.checkRange(this)
+        if (isOutOfRange != 'OK') {
+            result[isOutOfRange] = true
         }
+        let isCollide = this.board.checkCollide(this)
+        if (isCollide != 'OK') {
+            result[isCollide] = true
+        }
+        return result
     }
 
     get width() {
@@ -127,6 +140,16 @@ class TetrisBlock {
 
     get color() {
         return this._color
+    }
+
+    save() {
+        this._x = this.x
+        this._y = this.y
+    }
+
+    restore() {
+        this.x = this._x
+        this.y = this._y
     }
 
     draw() {

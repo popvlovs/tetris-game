@@ -1,4 +1,4 @@
-class TetrisReverseLBlock extends TetrisBlock {
+class TetrisReverseLBlock extends TetrisGeometry {
     constructor(board) {
         super(board)
     }
@@ -9,20 +9,25 @@ class TetrisReverseLBlock extends TetrisBlock {
 
     get patterns() {
         return [[
-            [1, 0, 0],
-            [1, 1, 1],
-            [0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 1, 1],
+            [0, 0, 0, 0],
         ], [
-            [1, 1],
-            [1, 0],
-            [1, 0],
+            [0, 0, 1, 1],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 0],
         ], [
-            [1, 1, 1],
-            [0, 0, 1],
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 0, 0],
         ], [
-            [0, 1],
-            [0, 1],
-            [1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 0, 0, 0],
         ],]
     }
 }

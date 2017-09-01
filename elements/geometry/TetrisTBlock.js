@@ -1,4 +1,4 @@
-class TetrisTBlock extends TetrisBlock {
+class TetrisTBlock extends TetrisGeometry {
     constructor(board) {
         super(board)
     }
@@ -9,19 +9,25 @@ class TetrisTBlock extends TetrisBlock {
 
     get patterns() {
         return [[
-            [0, 1, 0],
-            [1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 1, 1],
+            [0, 0, 0, 0],
         ], [
-            [1, 0],
-            [1, 1],
-            [1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 1],
+            [0, 0, 1, 0],
+            [0, 0, 0, 0],
         ], [
-            [1, 1, 1],
-            [0, 1, 0],
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 0, 1, 0],
+            [0, 0, 0, 0],
         ], [
-            [0, 1],
-            [1, 1],
-            [0, 1],
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 0, 0],
         ],]
     }
 }

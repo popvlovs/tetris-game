@@ -9,6 +9,7 @@ class TetrisBoard {
         this.rowCells = 20
         this.colCells = 32
 
+        this.score = 0
         this.frozenBlocks = []
 
         this.prepare()
@@ -24,6 +25,10 @@ class TetrisBoard {
             return 'CrossLeft'
         }
 
+        if (block.y < 0) {
+            return 'CrossTop'
+        }
+
         if (block.x + block.width > this.canvas.width) {
             return 'CrossRight'
         }
@@ -32,7 +37,7 @@ class TetrisBoard {
             return 'CrossBottom'
         }
 
-        return true
+        return 'OK'
     }
 
     addElement(element) {
@@ -40,15 +45,26 @@ class TetrisBoard {
         this.elements.push(element)
     }
 
+    removeElement(element) {
+        let idx = this.elements.indexOf(element)
+        this.elements.splice(idx, 1)
+    }
+
+    addFrozenBlocks(block) {
+        block.color = 'blue'
+        this.frozenBlocks.push(block)
+        this.addElement(block)
+    }
+
     checkCollide(block) {
         for (let element of this.frozenBlocks) {
-            let horizontalCollide = !(Math.max(block.x, element.x) > Math.min(block.x+block.width, element.x+element.width))
-            let verticalCollide = !(Math.max(block.y, element.y) > Math.min(block.y+block.height, element.y+element.height))
-            if (horizontalCollide || verticalCollide) {
-                return true
+            let horizontalCollide = (Math.max(block.x, element.x) < Math.min(block.x+block.width, element.x+element.width))
+            let verticalCollide = (Math.max(block.y, element.y) < Math.min(block.y+block.height, element.y+element.height))
+            if (horizontalCollide && verticalCollide) {
+                return 'Collide'
             }
         }
-        return false
+        return 'OK'
     }
 
     generateNewBlock() {
@@ -59,15 +75,6 @@ class TetrisBoard {
     startLoop() {
         let $this = this
         setInterval(function() {$this.loop()}, 1000.0/this.fps)
-    }
-
-    loop() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        this.elements.forEach(function(element) {
-            if (element.loop) {
-                element.loop()
-            }
-        }, this);
     }
 
     prepare() {
@@ -86,6 +93,8 @@ class TetrisBoard {
             }
         })
     }
+
+    
 
     readFiles(callback) {
         let $this = this;
@@ -107,6 +116,28 @@ class TetrisBoard {
                 if (readerCount == 0) {
                     callback.apply($this);
                 }
+            }
+        }, this);
+    }
+
+    gameover() {
+        alert('Game over!')
+    }
+
+    eliminateLine() {
+        // TODO
+        this.blocks
+    }
+
+    loop() {
+        // 检查消除
+        this.eliminateLine()
+
+        // 重绘界面：先清除再绘制
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.elements.forEach(function(element) {
+            if (element.loop) {
+                element.loop()
             }
         }, this);
     }

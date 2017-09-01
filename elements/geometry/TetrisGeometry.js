@@ -4,13 +4,17 @@ class TetrisGeometry {
         this.events = []
 
         // 每秒钟下落的次数
-        this.fallSpeed = 1
+        this.fallSpeed = 3
         this.fallCount = 0
 
         this.board = board
 
         let cellsPerLine = Math.round(this.board.canvas.width / this.board.cellSize)
-        this.x = Math.round(cellsPerLine / 2) * this.board.cellSize
+        this.anchor = {
+            x: (Math.floor(cellsPerLine / 2) - 2) * this.board.cellSize,
+            y: -this.board.cellSize,
+        }
+        this.x = 0
         this.y = 0
 
         this.init()
@@ -18,13 +22,20 @@ class TetrisGeometry {
 
     init() {
         this.usePattern(this.defaultPattern)
+        // 如果在初始化阶段即发生碰撞，则视为游戏结束
+        let state = this.checkPos()
+        if (state.Collide) {
+            this.destroy()
+            this.board.gameover()
+            return
+        }
 
         this.moveLeftEvt = this.registerKeyboard('ArrowLeft|a', () => {
-            this.moveLeft()
+            this.attempt(this.moveLeft)
         })
 
         this.moveRightEvt = this.registerKeyboard('ArrowRight|d', () => {
-            this.moveRight()
+            this.attempt(this.moveRight)
         })
 
         this.fallEvt = this.registerKeyboard('ArrowDown|s', () => {
@@ -32,8 +43,10 @@ class TetrisGeometry {
         })
 
         this.rotateEvt = this.registerKeyboard('Enter| ', () => {
-            this.rotate()
+            this.attempt(this.rotate)
         })
+
+        
     }
 
     get moveStep() {
@@ -63,6 +76,10 @@ class TetrisGeometry {
         return this.patterns[this.currentPattern]
     }
 
+    get pattern() {
+        return this.patterns[this.currentPattern]
+    }
+
     usePattern(pattern) {
         if (!pattern) {
             console.log("错误的pattern，NULL")
@@ -82,13 +99,14 @@ class TetrisGeometry {
                         this.blocks.push(newBlock)
                     }
                     let block = this.blocks[blockIdx]
-                    block.x = this.x + col * block.width
-                    block.y = this.y + row * block.height
+                    block.x = this.anchor.x + col * block.width
+                    block.y = this.anchor.y + row * block.height
 
                     blockIdx++
                 }
             }
         }
+
         this.updatePos()
     }
 
@@ -122,16 +140,33 @@ class TetrisGeometry {
         }
     }
 
+    unregisterKeyboard(evt) {
+        if (!evt) {
+            return
+        }
+        window.removeEventListener(evt.key, evt.listener)
+    }
+
+    attempt(action, onFailed) {
+        this.save()
+        action.apply(this)
+        let state = this.checkPos()
+        if (!state.OK) {
+            this.restore()
+            if (onFailed) {
+                onFailed.apply(this)
+            }
+        } else {
+            this.updatePos()
+        }
+    }
+
     moveLeft() {
         // 全体向左一格
         this.blocks.forEach(block => {
             block.moveLeft()
         }, this);
-        // 越出边界，回退操作
-        if (!this.checkPos()) {
-            this.moveRight()
-        }
-        this.updatePos()
+        this.anchor.x -= this.moveStep
     }
 
     moveRight() {
@@ -139,43 +174,85 @@ class TetrisGeometry {
         this.blocks.forEach(block => {
             block.moveRight()
         }, this);
-        this.x += this.board.cellSize
-        // 越出边界，回退操作
-        if (!this.checkPos()) {
-            this.moveLeft()
-        }
-        this.updatePos()
+        this.anchor.x += this.moveStep
     }
 
-    fall() {
-        // 全体下落一格
+    moveUp() {
+        // 全体向上一格
+        this.blocks.forEach(block => {
+            block.moveUp()
+        }, this);
+        this.anchor.y -= this.moveStep
+    }
+
+    moveDown() {
+        // 全体向下一格
         this.blocks.forEach(block => {
             block.moveDown()
         }, this);
-        // 非法下落，回退操作
-        if (!this.checkPos()) {
+        this.anchor.y += this.moveStep
+    }
+
+    fall() {
+        let $this = this
+        this.attempt(this.moveDown, () => {
+            // 将 blocks 变为不可动形态，并托管给 this.board
             this.blocks.forEach(block => {
-                block.moveUp()
-            }, this);
-        }
-        this.updatePos()
+                $this.board.addFrozenBlocks(block)
+            })
+            // 销毁该形状：取消注册事件
+            $this.destroy()
+            // 生成新的形状
+            $this.board.generateNewBlock()
+        })
+    }
+
+    destroy() {
+        // 清除引用
+        this.board.removeElement(this)
+        this.unregisterKeyboard(this.moveLeftEvt)
+        this.unregisterKeyboard(this.moveRightEvt)
+        this.unregisterKeyboard(this.fallEvt)
+        this.unregisterKeyboard(this.rotateEvt)
     }
 
     rotate() {
         this.usePattern(this.nextPattern)
-        if (!this.checkPos()) {
-            this.usePattern(this.prevPattern)
-        }
     }
 
     checkPos() {
-        let isLegal = true
+        let state = {}
         this.blocks.forEach(block => {
-            if (!block.checkPos()) {
-                isLegal = false
-            }
+            let result = block.checkPos()
+            // Check failed
+            Object.assign(state, result)
         })
-        return isLegal
+        if (Object.keys(state).length == 0) {
+            state.OK = true
+        }
+        return state
+    }
+
+    save() {
+        this.blocks.forEach(block => {
+            block.save()
+        })
+        this._anchor = {
+            x: this.anchor.x,
+            y: this.anchor.y,
+        }
+        this._currentPattern = this.currentPattern
+    }
+
+    restore() {
+        this.blocks.forEach(block => {
+            block.restore()
+        })
+        this.anchor = {
+            x: this._anchor.x,
+            y: this._anchor.y,
+        }
+        this.currentPattern = this._currentPattern
     }
 
     draw() {
