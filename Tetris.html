@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>俄罗斯方块</title>
+    <canvas id="myCanvas" width="500" height="800"></canvas>
+    <!-- <img id="tulip" src="./blocks.png" alt="The Tulip" /> -->
+    <script src="./board/TetrisBoard.js"></script>
+    <script src="./elements/TetrisBlock.js"></script>
+    <script src="./elements/TetrisSquare.js"></script>
+    <script src="./elements/TetrisLongBar.js"></script>
+    <script src="./elements/TetrisLBlock.js"></script>
+    <script src="./elements/TetrisReverseLBlock.js"></script>
+    <script src="./elements/TetrisTBlock.js"></script>
+    <script src="./elements/TetrisZBlock.js"></script>
+    <script src="./elements/TetrisReverseZBlock.js"></script>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <script type='text/javascript'>
+        
+        let board = TetrisBoard.init(function() {
+            board.generateNewBlock()
+        })
+        
+    </script>
+</body>
+</html>
