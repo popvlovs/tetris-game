@@ -1,34 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>俄罗斯方块</title>
     <canvas id="myCanvas" width="500" height="800"></canvas>
-    <!-- <img id="tulip" src="./blocks.png" alt="The Tulip" /> -->
     <script src="./board/TetrisBoard.js"></script>
-    <script src="./elements/TetrisBlock.js"></script>
-    <script src="./elements/TetrisSquare.js"></script>
-    <script src="./elements/TetrisLongBar.js"></script>
-    <script src="./elements/TetrisLBlock.js"></script>
-    <script src="./elements/TetrisReverseLBlock.js"></script>
-    <script src="./elements/TetrisTBlock.js"></script>
-    <script src="./elements/TetrisZBlock.js"></script>
-    <script src="./elements/TetrisReverseZBlock.js"></script>
+    <script src="./elements/block/TetrisBlock.js"></script>
+    <script src="./elements/geometry/TetrisGeometry.js"></script>
+    <script src="./elements/geometry/TetrisSquare.js"></script>
+    <script src="./elements/geometry/TetrisLongBar.js"></script>
+    <script src="./elements/geometry/TetrisReverseLBlock.js"></script>
+    <script src="./elements/geometry/TetrisTBlock.js"></script>
+    <script src="./elements/geometry/TetrisZBlock.js"></script>
+    <script src="./elements/geometry/TetrisReverseZBlock.js"></script>
     <style>
         canvas {
             border: 1px solid black;
         }
     </style>
 </head>
+
 <body>
     <script type='text/javascript'>
-        
-        let board = TetrisBoard.init(function() {
+        // let board = TetrisBoard.init(function() {
+        //     // board.generateNewBlock()
+        //     let testBlockRed = new TetrisBlock(this)
+        //     testBlockRed.color = 'red'
+
+        //     let testBlockLBlue = new TetrisBlock(this)
+        //     testBlockLBlue.color = 'lightblue'
+        //     testBlockLBlue.x = testBlockRed.x + testBlockRed.width
+
+        //     let testBlockYellow = new TetrisBlock(this)
+        //     testBlockYellow.color = 'yellow'
+        //     testBlockYellow.x = testBlockLBlue.x + testBlockLBlue.width
+
+        //     let testBlockBlue = new TetrisBlock(this)
+        //     testBlockBlue.color = 'blue'
+        //     testBlockBlue.x = testBlockYellow.x + testBlockYellow.width
+
+        //     let testBlockOrange = new TetrisBlock(this)
+        //     testBlockOrange.color = 'orange'
+        //     testBlockOrange.x = testBlockBlue.x + testBlockBlue.width
+
+        //     let testBlockPurple = new TetrisBlock(this)
+        //     testBlockPurple.color = 'purple'
+        //     testBlockPurple.x = testBlockOrange.x + testBlockOrange.width
+
+        //     let testBlockGreen = new TetrisBlock(this)
+        //     testBlockGreen.color = 'green'
+        //     testBlockGreen.x = testBlockPurple.x + testBlockPurple.width
+
+
+        //     this.addElement(testBlockRed)
+        //     this.addElement(testBlockLBlue)
+        //     this.addElement(testBlockYellow)
+        //     this.addElement(testBlockBlue)
+        //     this.addElement(testBlockPurple)
+        //     this.addElement(testBlockYellow)
+        //     this.addElement(testBlockOrange)
+        // })
+
+        let board = TetrisBoard.init(function () {
             board.generateNewBlock()
         })
-        
     </script>
 </body>
+
 </html>

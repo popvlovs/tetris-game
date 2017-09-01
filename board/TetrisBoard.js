@@ -9,12 +9,46 @@ class TetrisBoard {
         this.rowCells = 20
         this.colCells = 32
 
+        this.frozenBlocks = []
+
         this.prepare()
         this.startLoop()
     }
 
     static init(onload) {
         return new this(onload)
+    }
+
+    checkRange(block) {
+        if (block.x < 0) {
+            return 'CrossLeft'
+        }
+
+        if (block.x + block.width > this.canvas.width) {
+            return 'CrossRight'
+        }
+
+        if (block.y + block.height > this.canvas.height) {
+            return 'CrossBottom'
+        }
+
+        return true
+    }
+
+    addElement(element) {
+        element.board = this
+        this.elements.push(element)
+    }
+
+    checkCollide(block) {
+        for (let element of this.frozenBlocks) {
+            let horizontalCollide = !(Math.max(block.x, element.x) > Math.min(block.x+block.width, element.x+element.width))
+            let verticalCollide = !(Math.max(block.y, element.y) > Math.min(block.y+block.height, element.y+element.height))
+            if (horizontalCollide || verticalCollide) {
+                return true
+            }
+        }
+        return false
     }
 
     generateNewBlock() {
@@ -32,10 +66,6 @@ class TetrisBoard {
         this.elements.forEach(function(element) {
             if (element.loop) {
                 element.loop()
-            }
-
-            if (element.draw) {
-                element.draw()
             }
         }, this);
     }
