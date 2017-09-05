@@ -3,16 +3,17 @@ class TetrisGeometry {
         this.blocks = []
         this.events = []
 
-        // 每秒钟下落的次数
-        this.fallSpeed = 3
+        // 每秒钟下落的次数，不会超过fps数
+        this.fallSpeed = 5
         this.fallCount = 0
 
         this.board = board
 
-        let cellsPerLine = Math.round(this.board.canvas.width / this.board.cellSize)
+        const cellsPerLine = this.board.colCells
+        const blockArea = this.board.blockArea
         this.anchor = {
-            x: (Math.floor(cellsPerLine / 2) - 2) * this.board.cellSize,
-            y: -this.board.cellSize,
+            x: blockArea.x + (Math.floor(cellsPerLine / 2) - 2) * this.board.cellSize,
+            y: blockArea.y -this.board.cellSize,
         }
         this.x = 0
         this.y = 0
@@ -22,13 +23,6 @@ class TetrisGeometry {
 
     init() {
         this.usePattern(this.defaultPattern)
-        // 如果在初始化阶段即发生碰撞，则视为游戏结束
-        let state = this.checkPos()
-        if (state.Collide) {
-            this.destroy()
-            this.board.gameover()
-            return
-        }
 
         this.moveLeftEvt = this.registerKeyboard('ArrowLeft|a', () => {
             this.attempt(this.moveLeft)
@@ -45,8 +39,6 @@ class TetrisGeometry {
         this.rotateEvt = this.registerKeyboard('Enter| ', () => {
             this.attempt(this.rotate)
         })
-
-        
     }
 
     get moveStep() {
@@ -198,7 +190,8 @@ class TetrisGeometry {
         this.attempt(this.moveDown, () => {
             // 将 blocks 变为不可动形态，并托管给 this.board
             this.blocks.forEach(block => {
-                $this.board.addFrozenBlocks(block)
+                //block.color = 'blue'
+                $this.board.blockArea.addElement(block)
             })
             // 销毁该形状：取消注册事件
             $this.destroy()
@@ -209,7 +202,7 @@ class TetrisGeometry {
 
     destroy() {
         // 清除引用
-        this.board.removeElement(this)
+        this.board.blockArea.removeElement(this)
         this.unregisterKeyboard(this.moveLeftEvt)
         this.unregisterKeyboard(this.moveRightEvt)
         this.unregisterKeyboard(this.fallEvt)

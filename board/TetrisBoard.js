@@ -3,11 +3,15 @@ class TetrisBoard {
         this.imgFiles = []
         this.imgs = {}
         this.onload = onload
-        this.fps = fps | 40
+        this.fps = fps | 100
         this.elements = []
-        this.cellSize = 25
+
+        // 每个方块的尺寸（像素）
+        this.cellSize = 35
+        // 方块区域每一列方块数（高度）
         this.rowCells = 20
-        this.colCells = 32
+        // 方块区域每一行方块数（宽度）
+        this.colCells = 10
 
         this.score = 0
         this.frozenBlocks = []
@@ -16,28 +20,30 @@ class TetrisBoard {
         this.startLoop()
     }
 
-    static init(onload) {
-        return new this(onload)
+    static run() {
+         return new this(this.afterLoaded, 100)
     }
 
-    checkRange(block) {
-        if (block.x < 0) {
-            return 'CrossLeft'
-        }
+    static afterLoaded() {
+        // 设置方块区域
+        const blockArea = this.blockArea = new TetrisBlockArea(this)
+        this.addElement(blockArea)
 
-        if (block.y < 0) {
-            return 'CrossTop'
-        }
+        // 设置得分/操作/信息区域
+        const infoArea = this.infoArea = new TetrisInfoPanel(this)
+        this.addElement(infoArea)
 
-        if (block.x + block.width > this.canvas.width) {
-            return 'CrossRight'
-        }
+        // 设置主区域
+        this.canvas.width = this.width = blockArea.boundingRect.right - blockArea.boundingRect.left + infoArea.width
+        this.canvas.height = this.height = blockArea.boundingRect.bottom - blockArea.boundingRect.top
 
-        if (block.y + block.height > this.canvas.height) {
-            return 'CrossBottom'
-        }
+        // 开始
+        this.generateNewBlock()
+    }
 
-        return 'OK'
+    addScore(score) {
+        this.score += score
+        //this.infoArea.addScore()
     }
 
     addElement(element) {
@@ -50,67 +56,50 @@ class TetrisBoard {
         this.elements.splice(idx, 1)
     }
 
-    addFrozenBlocks(block) {
-        block.color = 'blue'
-        this.frozenBlocks.push(block)
-        this.addElement(block)
-    }
-
-    checkCollide(block) {
-        for (let element of this.frozenBlocks) {
-            let horizontalCollide = (Math.max(block.x, element.x) < Math.min(block.x+block.width, element.x+element.width))
-            let verticalCollide = (Math.max(block.y, element.y) < Math.min(block.y+block.height, element.y+element.height))
-            if (horizontalCollide && verticalCollide) {
-                return 'Collide'
-            }
-        }
-        return 'OK'
-    }
-
     generateNewBlock() {
         let block = TetrisBlock.newRandomBlock(this)
-        this.elements.push(block)
+        // 检查游戏结束：如果在初始化阶段即发生碰撞，则视为游戏结束
+        let state = block.checkPos()
+        if (state.Collide) {
+            block.destroy()
+            this.gameover()
+            return
+        }
+        this.blockArea.addElement(block)
     }
 
     startLoop() {
         let $this = this
-        setInterval(function() {$this.loop()}, 1000.0/this.fps)
+        setInterval(function () { $this.loop() }, 1000.0 / this.fps)
     }
 
     prepare() {
-        // Set background
         let canvas = this.canvas = document.querySelector("#myCanvas")
         let context = this.context = canvas.getContext("2d")
-        context.fillStyle = "#000"
-        context.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Read image resources
+        // 加载图片资源
         let $this = this
         this.imgFiles.push('blocks.png')
-        this.readFiles(function() {
+        this.readFiles(() => {
             if ($this.onload) {
                 $this.onload.apply($this)
             }
         })
     }
 
-    
-
     readFiles(callback) {
         let $this = this;
         let readerCount = 0;
 
-        this.imgFiles.forEach(function(file) {
+        this.imgFiles.forEach(function (file) {
             let filename = file.split('.')[0];
             if (filename in $this.imgs) {
                 return
             }
-
             readerCount++;
             file = './imgs/' + file
             let img = new Image()
             img.src = file
-            img.onload = function() {
+            img.onload = () => {
                 readerCount--
                 $this.imgs[filename] = img
                 if (readerCount == 0) {
@@ -124,21 +113,25 @@ class TetrisBoard {
         alert('Game over!')
     }
 
-    eliminateLine() {
-        // TODO
-        this.blocks
-    }
-
     loop() {
-        // 检查消除
-        this.eliminateLine()
-
+        const context = this.context
         // 重绘界面：先清除再绘制
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        this.elements.forEach(function(element) {
+        context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+        // 绘制大背景
+        //context.fillStyle = "rgba(255,255,255,0.2)";
+        //context.fillRect(0, 0, this.width, this.height)
+        // context.lineWidth = 2;
+        // context.strokeStyle = "white";
+        // context.strokeRect(0, 0, this.width, this.height)
+
+        // 绘制所有子元素
+        this.elements.forEach(element => {
             if (element.loop) {
                 element.loop()
             }
         }, this);
+
+        
     }
 }

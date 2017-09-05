@@ -43,11 +43,11 @@ class TetrisBlock {
 
     checkPos() {
         let result = {}
-        let isOutOfRange = this.board.checkRange(this)
+        let isOutOfRange = this.board.blockArea.checkRange(this)
         if (isOutOfRange != 'OK') {
             result[isOutOfRange] = true
         }
-        let isCollide = this.board.checkCollide(this)
+        let isCollide = this.board.blockArea.checkCollide(this)
         if (isCollide != 'OK') {
             result[isCollide] = true
         }
@@ -142,6 +142,12 @@ class TetrisBlock {
         return this._color
     }
 
+    eliminate() {
+        this.color = 'red'
+        // TODO: blink animation
+        this.board.blockArea.removeElement(this)
+    }
+
     save() {
         this._x = this.x
         this._y = this.y
@@ -154,7 +160,7 @@ class TetrisBlock {
 
     draw() {
         let blocks = this.board.imgs['blocks']
-        let context = board.context
+        let context = this.board.context
         context.save()
         let radius = this.angle * Math.PI / 180
         let center = this.center
